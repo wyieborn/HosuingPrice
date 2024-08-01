@@ -1,12 +1,5 @@
-from flask import Flask, request
 import pandas as pd
 import pickle
-# import start
-
-app = Flask(__name__)
-
-
-
 
 
 
@@ -100,18 +93,11 @@ def prepare_features(data):
 
     return data_scaled
 
-@app.route('/')
-def test_api():
-    return 'Welcome to Housing Price Prediction Api V1.0.0'
 
-# Flask route for making predictions
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json()
+
+
+def predict(data):
     data = prepare_features(data)
     model = load_model()
     prediction = model.predict(data)
-    return str(prediction[0])
-    
-if __name__ == '__main__':
-    app.run(debug=True)
+    return prediction[0]

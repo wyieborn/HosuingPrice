@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from datetime import date
 import pandas as pd
+import services
 
 st.title('Hello, *World!* :sunglasses:')
 
@@ -115,20 +116,19 @@ if st.button("Predict"):
     # print(df)
     print('user data')
     print(user_data)
-    json_data = json.dumps(user_data)
-    print(json_data)
+    # json_data = json.dumps(user_data)
     missing_fields = check_required_fields(user_data, fields)
     if missing_fields:
         st.error(f"The following fields are required: {', '.join(missing_fields)}")
     else:
         with st.spinner("Processing data..."):
 
-            response = requests.post(
-                "https://housingprice-api.onrender.com/predict", data=json_data, headers={'Content-Type': 'application/json'}
-            )
-            if response.status_code == 200:
-                st.title("Predicted price for the house is: " + str(response.text))
+            response = services.predict(user_data)
+            print(response)
+            
+            if response>0:
+                st.title("Predicted price for the house is: " + str(response))
             else:
                 st.error("Failed to process data. Please try again.")
-                st.text(f"Response from server: {response.text}")
+                st.text(f"Response from server: {str(response)}")
                 
