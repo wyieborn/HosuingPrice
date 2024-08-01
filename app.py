@@ -124,7 +124,7 @@ if st.button("Predict"):
         with st.spinner("Processing data..."):
 
             response = requests.post(
-                "http://localhost:5000/predict", data=json_data, headers={'Content-Type': 'application/json'}
+                "https://housingprice-api.onrender.com/predict", data=json_data, headers={'Content-Type': 'application/json'}
             )
             if response.status_code == 200:
                 st.title("Predicted price for the house is: " + str(response.text))
