@@ -1,17 +1,24 @@
 import streamlit as st
 import requests
 from datetime import date
+import pandas as pd
 
 st.title('Hello, *World!* :sunglasses:')
 
+
+def load_df():
+    df = pd.read_csv("melb_data.csv")
+    
+    return df
+
+df = load_df()
+
 fields = {
-    "Suburb": {"type": "text", "required": True},
-    "Address": {"type": "text", "required": True},
+    # "Suburb": {"type": "text", "required": True},
     "Rooms": {"type": "number", "required": True},
-    "Type": {"type": "text", "required": True},
-    "Price": {"type": "number", "required": True},
-    "Method": {"type": "text", "required": True},
-    "SellerG": {"type": "text", "required": True},
+    "Type": {"type": "multiselect", "required": True, "options":df['Type'].unique()},
+    "Method":  {"type": "multiselect", "required": True, "options":df['Method'].unique()},
+    # "SellerG": {"type": "text", "required": True},
     "Date": {"type": "date", "required": True},
     "Distance": {"type": "number", "required": True},
     "Postcode": {"type": "number", "required": True},
@@ -21,10 +28,10 @@ fields = {
     "Landsize": {"type": "number", "required": True},
     "BuildingArea": {"type": "number", "required": True},
     "YearBuilt": {"type": "number", "required": False},
-    "CouncilArea": {"type": "text", "required": False},
+    "CouncilArea": {"type": "multiselect", "required": True, "options":df['CouncilArea'].unique()},
     "Lattitude": {"type": "number", "required": True},
     "Longtitude": {"type": "number", "required": True},
-    "Regionname": {"type": "text", "required": True},
+    "Regionname":  {"type": "multiselect", "required": True, "options":df['Regionname'].unique()},
     "Propertycount": {"type": "number", "required": True},
 }
 
@@ -66,6 +73,16 @@ def get_user_input(fields):
                     f"Enter {field}{'*' if required else ''}"
                 )
             )
+        elif field_type == "multiselect":
+            # Update for multiselect
+            user_data[field] = columns[idx % num_columns].multiselect(
+                f"Enter {field}{'*' if required else ''}", options=options["options"]
+            )
+            if  len(user_data[field])>0:
+                user_data[field] = user_data[field][0]
+            else:
+                user_data[field] = pd.NA
+                user_data[field] = str(df[field].mode()[0])
         elif field_type == "date":
             user_data[field] = columns[idx % num_columns].date_input(
                 f"Enter {field}{'*' if required else ''}", value=date.today()
@@ -96,6 +113,7 @@ if st.button("Predict"):
     # df = pd.DataFrame.from_dict(user_data, orient='index')
 
     # print(df)
+    print('user data')
     print(user_data)
     json_data = json.dumps(user_data)
     print(json_data)
@@ -113,3 +131,4 @@ if st.button("Predict"):
             else:
                 st.error("Failed to process data. Please try again.")
                 st.text(f"Response from server: {response.text}")
+                

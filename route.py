@@ -80,15 +80,17 @@ def prepare_features(data):
     data = feature_engineering(data)
     data_encoded = preprocessing(data) 
 
+    drop_list = ['Date', 'YearBuilt']
 
     drop_list = ['Price','Suburb', 'SellerG','Address', 'Date', 'YearBuilt']
      # Display the encoded DataFrame
     data_encoded = data_encoded.drop(drop_list, axis=1)
-
+    print(data_encoded.head())
+    print(data_encoded.columns)
     # Cast every column to float
     data_encoded = data_encoded.astype(float)
 
-
+    print(data_encoded.columns)
     scaler = MinMaxScaler()
 
     # fit and transfrom
