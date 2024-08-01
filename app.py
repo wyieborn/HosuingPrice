@@ -2,9 +2,8 @@ import streamlit as st
 import requests
 from datetime import date
 import pandas as pd
-import services
 
-st.title('Hello, *World!* :sunglasses:')
+st.title('Welcome, To our Housing Prediction* :sunglasses:')
 
 
 def load_df():
@@ -73,7 +72,9 @@ def get_user_input(fields):
                 else columns[idx % num_columns].number_input(
                     f"Enter {field}{'*' if required else ''}"
                 )
+                
             )
+            
         elif field_type == "multiselect":
             # Update for multiselect
             user_data[field] = columns[idx % num_columns].multiselect(
@@ -105,6 +106,9 @@ def serialize_dates(data):
 
 user_data = get_user_input(fields)
 user_data = serialize_dates(user_data)
+if user_data["Rooms"] == 0:
+    user_data["Rooms"] = 1
+    
 if st.button("Predict"):
     import json, pandas as pd
     # # Convert JSON string to Python list
@@ -116,19 +120,20 @@ if st.button("Predict"):
     # print(df)
     print('user data')
     print(user_data)
-    # json_data = json.dumps(user_data)
+    json_data = json.dumps(user_data)
+    print(json_data)
     missing_fields = check_required_fields(user_data, fields)
     if missing_fields:
         st.error(f"The following fields are required: {', '.join(missing_fields)}")
     else:
         with st.spinner("Processing data..."):
 
-            response = services.predict(user_data)
-            print(response)
-            
-            if response>0:
-                st.title("Predicted price for the house is: " + str(response))
+            response = requests.post(
+                "http://localhost:5000/predict", data=json_data, headers={'Content-Type': 'application/json'}
+            )
+            if response.status_code == 200:
+                st.title("Predicted price for the house is: " + str(response.text))
             else:
                 st.error("Failed to process data. Please try again.")
-                st.text(f"Response from server: {str(response)}")
+                st.text(f"Response from server: {response.text}")
                 
